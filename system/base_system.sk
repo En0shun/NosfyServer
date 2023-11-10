@@ -228,10 +228,10 @@ command /getready:
         broadcast "%3st element of {_player::*}%, %3st element of {_target::*}%"   
         set {_lastname} to 1st element of {_target::*}
         remove 1st element of {_target::*} from {_target::*}
-        add {_lastname} to {_target::*}
         broadcast "%1st element of {_player::*}%, %1st element of {_target::*}%"        
         broadcast "%2st element of {_player::*}%, %2st element of {_target::*}%"
         broadcast "%3st element of {_player::*}%, %3st element of {_target::*}%"   
+        add {_lastname} to {_target::*}
         loop amount of {_player::*} times:
             set metadata value "target" of 1st element of {_player::*} to 1st element of {_target::*}
             remove 1st element of {_player::*} from {_player::*}
