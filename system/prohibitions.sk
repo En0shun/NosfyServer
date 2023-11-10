@@ -9,7 +9,7 @@ on craft:
 on bed enter:
     cancel event
 #注意※設置されたチェストは一度サーバーを閉じるともう一度チェストを開かない限り設置済みのチェスト数にカウントされません
-on mine:
+on break:
     if player does not have bedrock:
         cancel event
     else:
