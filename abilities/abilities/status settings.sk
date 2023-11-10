@@ -1,5 +1,0 @@
-function setStatus(p: player, i: integer):
-    if {_i} = 1:
-        set {_p}'s max health attribute to 40 #default 20
-        set {_p}'s health to 40 #default 20
-        set {_p}'s attack damage attribute to 2 #default 1

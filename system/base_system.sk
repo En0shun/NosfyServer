@@ -79,7 +79,7 @@ command /debug:
         #hide player in tablist of all player
         #set the player's tab list name to "&0Unknown"
         #hide the player from all players
-        #hide player in tab list of all players
+        #show player for player
         #broadcast "%{ChestLocation::*}%"
         #delete {CollectionShop::*}
         #broadcast "%player's movement speed attribute%"
@@ -154,9 +154,11 @@ command /start:
             if metadata value "ingame" of loop-player is true:
                 broadcast "&cゲーム中に新たなゲームを開始することはできません。"
                 stop
-            if metadata value "ready" of loop-player is false:
-                broadcast "&cプレイヤーの準備が完了していません。"
-                stop
+            if metadata value "ready" of loop-player is true:
+                add 1 to {_count} 
+        if {_count} < 2:
+            broadcast "&c最低限のプレイヤーの準備が完了していません。"
+            stop
         send title "&cゲームが始まります。" to all players for 3 seconds with fadein 1 second and fadeout 1 second
         play sound "BLOCK_BEACON_ACTIVATE" in master volume category with volume 2 and pitch 2 for all players
         set {gametimer} to 0
@@ -222,10 +224,11 @@ command /getready:
         loop amount of {_player::*} times:
             add metadata value "name" of 1st element of {_player::*} to {_target::*}
         add 1st element of {_target::*} to {_target::*}
+        remove 1st element of {_target::*} from {_target::*}
         loop amount of {_player::*} times:
-            set metadata value "target" of 1st element of {_player::*} to 2nd element of {_target::*}
+            set metadata value "target" of 1st element of {_player::*} to 1st element of {_target::*}
             remove 1st element of {_player::*} from {_player::*}
-            remove 2nd element of {_target::*} from {_target::*}
+            remove 1st element of {_target::*} from {_target::*}
         broadcast "&b%{_player.list::*}% &f&lが参加しました。"
         broadcast "&f&l参加者の合計は &6%{_count}% &f&lです。"
 command /reset:
