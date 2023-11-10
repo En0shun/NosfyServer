@@ -5,7 +5,7 @@ on rightclick:
         set item amount of event-item to item amount of event-item - 1
         add 1 to player's max health
         add 1 to player's health
-    else if event-item's name is "&2ハートフルーツ":
+    else if event-item's name is "&cハートフルーツ":
         cancel event
         play sound "ENTITY_GENERIC_EAT" in master volume category with volume 1 and pitch 2 for player
         set item amount of event-item to item amount of event-item - 1
