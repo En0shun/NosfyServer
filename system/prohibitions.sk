@@ -35,6 +35,9 @@ on drop:
     set pickup delay of last dropped item to 2 ticks
 on item despawn:
     cancel event
+on weather change:
+    cancel event
+    set weather to clear
 on swap hand items:
     cancel event
 on rightclick on smithing table:
