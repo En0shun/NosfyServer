@@ -223,7 +223,9 @@ command /getready:
         set {_player::*} to shuffled {_player::*}
         loop amount of {_player::*} times:
             add metadata value "name" of 1st element of {_player::*} to {_target::*}
+        broadcast "%{_player::*}%, %{_target::*}%"        
         add 1st element of {_target::*} to {_target::*}
+        broadcast "%{_player::*}%, %{_target::*}%"
         remove 1st element of {_target::*} from {_target::*}
         broadcast "%{_player::*}%, %{_target::*}%"
         loop amount of {_player::*} times:
