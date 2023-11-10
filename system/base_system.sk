@@ -78,9 +78,9 @@ command /debug:
     trigger:
         #hide player in tablist of all player
         #set the player's tab list name to "&0Unknown"
-        hide the player from all players
+        #hide the player from all players
         #show player for player
-        #broadcast "%{ChestLocation::*}%"
+        broadcast "%{ChestLocation::*}%"
         #delete {CollectionShop::*}
         #broadcast "%player's movement speed attribute%"
         #init(player)
