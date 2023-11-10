@@ -1,0 +1,132 @@
+on rightclick:
+    if event-item's name is "&cライフクッキー":
+        cancel event
+        play sound "ENTITY_GENERIC_EAT" in master volume category with volume 1 and pitch 2 for player
+        set item amount of event-item to item amount of event-item - 1
+        add 1 to player's max health
+        add 1 to player's health
+    else if event-item's name is "&2ハートフルーツ":
+        cancel event
+        play sound "ENTITY_GENERIC_EAT" in master volume category with volume 1 and pitch 2 for player
+        set item amount of event-item to item amount of event-item - 1
+        add 3 to player's max health
+        add 3 to player's health
+    else if event-item's name is "&d再生の果実":
+        cancel event
+        play sound "ENTITY_GENERIC_EAT" in master volume category with volume 1 and pitch 2 for player
+        set item amount of event-item to item amount of event-item - 1
+        if metadata value "regen.fruit" of player is not set:
+            set metadata value "regen.fruit" of player to 10
+            while metadata value "regen.fruit" of player is set:
+                if metadata value "regen.fruit" of player is 0:
+                    delete metadata value "regen.fruit" of player
+                    stop
+                set metadata value "regen.fruit" of player to metadata value "regen.fruit" of player - 1
+                if player's health + 0.8 > player's max health:
+                    set player's health to player's max health
+                else:
+                    add 0.8 to player's health
+                wait a second
+        else:
+            set metadata value "regen.fruit" of player to 10
+    else if event-item's name is "&6黄金の林檎":
+        cancel event
+        play sound "ENTITY_GENERIC_EAT" in master volume category with volume 1 and pitch 2 for player
+        set item amount of event-item to item amount of event-item - 1
+        if metadata value "golden.apple" of player is not set:
+            set metadata value "golden.apple" of player to 20
+            while metadata value "golden.apple" of player is set:
+                if metadata value "golden.apple" of player is 0:
+                    delete metadata value "golden.apple" of player
+                    stop
+                set metadata value "golden.apple" of player to metadata value "golden.apple" of player - 1
+                if player's health + 1 > player's max health:
+                    set player's health to player's max health
+                else:
+                    add 1 to player's health
+                wait a second
+        else:
+            set metadata value "golden.apple" of player to 20
+    else if event-item's name is "&b俊足ニンジン":
+        cancel event
+        play sound "ENTITY_GENERIC_EAT" in master volume category with volume 1 and pitch 2 for player
+        set item amount of event-item to item amount of event-item - 1
+        if metadata value "speed.carrot" of player is not set:
+            set metadata value "speed.carrot" of player to 8
+            setMs(player)
+            while metadata value "speed.carrot" of player is set:
+                if metadata value "speed.carrot" of player is 0:
+                    delete metadata value "speed.carrot" of player
+                    setMs(player)
+                    stop
+                set metadata value "speed.carrot" of player to metadata value "speed.carrot" of player - 1
+                wait a second
+        else:
+            set metadata value "speed.carrot" of player to 8
+    else if event-item's name is "&4筋力の根":
+        cancel event
+        play sound "ENTITY_GENERIC_EAT" in master volume category with volume 1 and pitch 2 for player
+        set item amount of event-item to item amount of event-item - 1
+        if metadata value "power.root" of player is not set:
+            set metadata value "power.root" of player to 8
+            while metadata value "power.root" of player is set:
+                if metadata value "power.root" of player is 0:
+                    delete metadata value "power.root" of player
+                    stop
+                set metadata value "power.root" of player to metadata value "power.root" of player - 1
+                wait a second
+        else:
+            set metadata value "power.root" of player to 8
+    else if event-item's name is "&3アーマーパイ":
+        cancel event
+        play sound "ENTITY_GENERIC_EAT" in master volume category with volume 1 and pitch 2 for player
+        set item amount of event-item to item amount of event-item - 1
+        if metadata value "armor.pie" of player is not set:
+            set metadata value "armor.pie" of player to 8
+            while metadata value "armor.pie" of player is set:
+                if metadata value "armor.pie" of player is 0:
+                    delete metadata value "armor.pie" of player
+                    stop
+                set metadata value "armor.pie" of player to metadata value "armor.pie" of player - 1
+                wait a second
+        else:
+            set metadata value "armor.pie" of player to 8
+#調査系
+on rightclick with book on player:
+    if event-item's name is "&a「名前」調査書":
+        if isAlive(event-player) is true:
+            if {PlayerMemo::%player%::*} does not contain "%event-player%.%metadata value "name" of event-player%":
+                add "%event-player%.%metadata value "name" of event-player%" to {PlayerMemo::%player%::*}
+                set item amount of event-item to item amount of event-item - 1
+                send "&f%event-player%の名前は&2「%metadata value "name" of event-player%&2」&fです。" to player
+            else:
+                send "&f%event-player%の名前は&2「%metadata value "name" of event-player%&2」&fです。&c（使用済）" to player
+    else if event-item's name is "&a「殺害対象」調査書":
+        if isAlive(event-player) is true:
+            if {PlayerMemo::%player%::*} does not contain "%event-player%.%metadata value "target" of event-player%":
+                add "%event-player%.%metadata value "target" of event-player%" to {PlayerMemo::%player%::*}
+                set item amount of event-item to item amount of event-item - 1
+                send "&f%event-player%の殺害対象は&c「%metadata value "target" of event-player%&c」&fです。" to player
+            else:
+                send "&f%event-player%の殺害対象は&c「%metadata value "target" of event-player%&c」&fです。&c（使用済）" to player
+    else if event-item's name is "&a「収集品」調査書":
+        if isAlive(event-player) is true:
+            if {PlayerMemo::%player%::*} does not contain "%event-player%.%metadata value "collection" of event-player%":
+                add "%event-player%.%metadata value "collection" of event-player%" to {PlayerMemo::%player%::*}
+                set item amount of event-item to item amount of event-item - 1
+                send "&f%event-player%の収集品は&b「%metadata value "collection" of event-player%&b」&fです。" to player
+            else:
+                send "&f%event-player%の収集品は&b「%metadata value "collection" of event-player%&b」&fです。&c（使用済）" to player
+#食料
+on consume:
+    if event-item's name is "&f生の牛肉" or "&f生の豚肉" or "&f生の鳥肉" or "&f生の羊肉" or "&f生の鱈" or "&f生の鮭":
+        chance of 40%:
+            send "&cお腹を壊した..." to player
+            play sound "ENTITY_PLAYER_BURP" in master volume category with volume 1 and pitch 0.5 for player
+            apply potion effect of hunger of tier 1 without particles for 1 seconds to player
+            set the player's food level to the player's food level -5
+    else if event-item's name is "&c腐った肉":
+        send "&cお腹を壊した..." to player
+        play sound "ENTITY_PLAYER_BURP" in master volume category with volume 1 and pitch 0.5 for player
+        apply potion effect of hunger of tier 1 without particles for 1 seconds to player
+        set the player's food level to the player's food level -10

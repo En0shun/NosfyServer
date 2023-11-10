@@ -1,0 +1,144 @@
+variables:
+    {ChestRechargeCooldown} = 10
+
+command /supplybox:
+    permission: skript.game
+    permission message: {@no_permission}
+    trigger:
+        give a chest named "&6補給箱" to player
+on rightclick on chest:
+    if name of event-block is "&6補給箱":
+        if {ChestLocation::*} does not contain event-block's location:
+            set metadata value "supply.chest" of event-block to true
+            add event-block's location to {ChestLocation::*}
+            delete metadata value "chest.last.opened.time" of event-block
+            clear event-block's inventory
+        else:
+            if metadata value "supply.chest" of event-block is not set:
+                set metadata value "supply.chest" of event-block to true
+                clear event-block's inventory
+    if metadata value "supply.chest" of event-block is true:
+        if inGame() is true:
+            if metadata value "chest.last.opened.time" of event-block is not set:
+                clear event-block's inventory
+                set {_amount} to floor({gametimer}/{ChestRechargeCooldown})
+                set metadata value "chest.last.opened.time" of event-block to {_amount}*{ChestRechargeCooldown}
+            else:
+                set {_amount} to floor(({gametimer}-metadata value "chest.last.opened.time" of event-block)/{ChestRechargeCooldown})
+                set metadata value "chest.last.opened.time" of event-block to {_amount}*{ChestRechargeCooldown}+metadata value "chest.last.opened.time" of event-block
+            if {_amount} > 0:
+                loop {_amount} times:
+                    if event-block can hold a bedrock:
+                        add pickUpLoot() to event-block's inventory
+
+function ItemList(l: integer, i: integer) :: item:
+    if {_l} is 0:
+        return shulker shell named "&b硬い殻" with lore "&6[収集品]" if {_i} is 1
+        return honeycomb named "&b蜂の恵み" with lore "&6[収集品]" if {_i} is 2
+        return nether star named "&b星の欠片" with lore "&6[収集品]" if {_i} is 3
+        return heart of the sea named "&b蒼い球" with lore "&6[収集品]" if {_i} is 4
+        return amethyst shard named "&b紫水晶" with lore "&6[収集品]" if {_i} is 5
+        return glowstone dust named "&b発光する鱗粉" with lore "&6[収集品]" if {_i} is 6
+        return phantom membrane named "&b白竜の鱗" with lore "&6[収集品]" if {_i} is 7
+        return prismarine crystals named "&b海の破片" with lore "&6[収集品]" if {_i} is 8
+        return magma cream named "&b燃える心" with lore "&6[収集品]" if {_i} is 9
+        return ghast tear named "&b女神の涙" with lore "&6[収集品]" if {_i} is 10
+    else if {_l} is 1:
+        return wooden sword with all flags hidden named "&f木の剣" with lore "&6[装備]" and "&2攻撃力: +%weaponDmg("&f木の剣")%" and "&2耐久減少度: %weaponDrb("&f木の剣", 1)%～%weaponDrb("&f木の剣", 0)%" if {_i} is 1
+        return stone sword with all flags hidden named "&f石の剣" with lore "&6[装備]" and "&2攻撃力: +%weaponDmg("&f石の剣")%" and "&2耐久減少度: %weaponDrb("&f石の剣", 1)%～%weaponDrb("&f石の剣", 0)%" if {_i} is 2
+        return iron sword with all flags hidden named "&f鉄の剣" with lore "&6[装備]" and "&2攻撃力: +%weaponDmg("&f鉄の剣")%" and "&2耐久減少度: %weaponDrb("&f鉄の剣", 1)%～%weaponDrb("&f鉄の剣", 0)%" if {_i} is 3
+        return book named "&a「名前」調査書" with lore "&6[調査]" and "&fプレイヤーに使用することで対象の「名前」を読み取る。" if {_i} is 4
+        return book named "&a「殺害対象」調査書" with lore "&6[調査]" and "&fプレイヤーに使用することで対象の「殺害対象」を読み取る。" if {_i} is 5
+        return book named "&a「収集品」調査書" with lore "&6[調査]" and "&fプレイヤーに使用することで対象の「収集品」を読み取る。" if {_i} is 6
+        return cookie named "&cライフクッキー" with lore "&6[自己強化]" and "&f使用すると自身の最大体力が1♡増加する。" if {_i} is 7
+function setLoot():
+    delete {Lootlist::*}
+    set {Lootlist::Jewel::*} to emerald named "&a翡翠色の宝石" with lore "&6[宝石]" and "&f非常に価値のある宝石。" and "&fショップで様々なアイテムと交換できる。"
+#収集品
+    add shulker shell named "&b硬い殻" with lore "&6[収集品]" to {Lootlist::Collection::*}
+    add honeycomb named "&b蜂の恵み" with lore "&6[収集品]" to {Lootlist::Collection::*}
+    add nether star named "&b星の欠片" with lore "&6[収集品]" to {Lootlist::Collection::*}
+    add heart of the sea named "&b蒼い球" with lore "&6[収集品]" to {Lootlist::Collection::*}
+    add amethyst shard named "&b紫水晶" with lore "&6[収集品]" to {Lootlist::Collection::*}
+    add glowstone dust named "&b発光する鱗粉" with lore "&6[収集品]" to {Lootlist::Collection::*}
+    add phantom membrane named "&b白竜の鱗" with lore "&6[収集品]" to {Lootlist::Collection::*}
+    add prismarine crystals named "&b海の破片" with lore "&6[収集品]" to {Lootlist::Collection::*}
+    add magma cream named "&b燃える心" with lore "&6[収集品]" to {Lootlist::Collection::*}
+    add ghast tear named "&b女神の涙" with lore "&6[収集品]" to {Lootlist::Collection::*}
+#食料
+    add beef named "&f生の牛肉" with lore "&6[食料]" and "&f食べる前に焼く必要があるだろう。" to {Lootlist::Food::*}
+    add cooked beef named "&f焼いた牛肉" with lore "&6[食料]" to {Lootlist::CookedFood::*}
+    add porkchop named "&f生の豚肉" with lore "&6[食料]" and "&f食べる前に焼く必要があるだろう。" to {Lootlist::Food::*}
+    add cooked porkchop named "&f焼いた豚肉" with lore "&6[食料]" to {Lootlist::CookedFood::*}
+    add mutton named "&f生の羊肉" with lore "&6[食料]" and "&f食べる前に焼く必要があるだろう。" to {Lootlist::Food::*}
+    add cooked mutton named "&f焼いた羊肉" with lore "&6[食料]" to {Lootlist::CookedFood::*}
+    add chicken named "&f生の鳥肉" with lore "&6[食料]" and "&f食べる前に焼く必要があるだろう。" to {Lootlist::Food::*}
+    add cooked chicken named "&f焼いた鳥肉" with lore "&6[食料]" to {Lootlist::CookedFood::*}
+    add cod named "&f生の鱈" with lore "&6[食料]" and "&f食べる前に焼く必要があるだろう。" to {Lootlist::Food::*}
+    add cooked cod named "&f焼いた鱈" with lore "&6[食料]" to {Lootlist::CookedFood::*}
+    add salmon named "&f生の鮭" with lore "&6[食料]" and "&f食べる前に焼く必要があるだろう。" to {Lootlist::Food::*}
+    add cooked salmon named "&f焼いた鮭" with lore "&6[食料]" to {Lootlist::CookedFood::*}
+#武器
+    add wooden sword with all flags hidden named "&f木の剣" with lore "&6[装備]" and "&2攻撃力: +%weaponDmg("&f木の剣")%" and "&2耐久減少度: %weaponDrb("&f木の剣", 1)%～%weaponDrb("&f木の剣", 0)%" to {LootList::Weapon::*}
+    add stone sword with all flags hidden named "&f石の剣" with lore "&6[装備]" and "&2攻撃力: +%weaponDmg("&f石の剣")%" and "&2耐久減少度: %weaponDrb("&f石の剣", 1)%～%weaponDrb("&f石の剣", 0)%" to {LootList::Weapon::*}
+    add iron sword with all flags hidden named "&f鉄の剣" with lore "&6[装備]" and "&2攻撃力: +%weaponDmg("&f鉄の剣")%" and "&2耐久減少度: %weaponDrb("&f鉄の剣", 1)%～%weaponDrb("&f鉄の剣", 0)%" to {LootList::Weapon::*}
+#調査系
+    add book named "&a「名前」調査書" with lore "&6[調査]" and "&fプレイヤーに使用することで対象の「名前」を読み取る。" to {LootList::Search::*}
+    add book named "&a「殺害対象」調査書" with lore "&6[調査]" and "&fプレイヤーに使用することで対象の「殺害対象」を読み取る。" to {LootList::Search::*}
+    add book named "&a「収集品」調査書" with lore "&6[調査]" and "&fプレイヤーに使用することで対象の「収集品」を読み取る。" to {LootList::Search::*}
+#強化系
+    add cookie named "&cライフクッキー" with lore "&6[自己強化]" and "&f使用すると自身の最大体力が1♡増加する。" to {LootList::Enhance::*}
+    add sweet berries named "&cハートフルーツ" with lore "&6[自己強化]" and "&f使用すると自身の最大体力が3♡増加する。" to {LootList::Enhance::*}
+    add glow berries named "&d再生の果実" with lore "&6[自己強化]" and "&f使用すると10秒かけて自身の体力を8♡回復する。" and "&f使用中にもう一度食べると効果時間をリセットする。" to {LootList::Enhance::*}
+    add golden apple named "&6黄金の林檎" with lore "&6[自己強化]" and "&f使用すると20秒かけて自身の体力を20♡回復する。" and "&f使用中にもう一度食べると効果時間をリセットする。" to {LootList::Enhance::*}
+    add carrot named "&b俊足ニンジン" with lore "&6[自己強化]" and "&f使用すると8秒間移動速度が60％増加する。" and "&f使用中にもう一度食べると効果時間をリセットする。" to {LootList::Enhance::*}
+    add beetroot named "&4筋力の根" with lore "&6[自己強化]" and "&f使用すると8秒間与ダメージが1.5♡上昇する。" and "&f使用中にもう一度食べると効果時間をリセットする。" to {LootList::Enhance::*}
+    add pumpkin pie named "&3アーマーパイ" with lore "&6[自己強化]" and "&f使用すると8秒間被ダメージが1♡減少する。" and "&f使用中にもう一度食べると効果時間をリセットする。" to {LootList::Enhance::*}
+#雑貨
+    add rotten flesh named "&c腐った肉" with lore "&6[その他]" and "&f腐った肉、食べるのはお勧めできない。" to {LootList::Others::*}
+    add bone named "&7骨" with lore "&6[その他]" and "&f何かの骨。" to {LootList::Others::*}
+    add string named "&f糸" with lore "&6[その他]" and "&fただの糸。" to {LootList::Others::*}
+    add feather named "&f羽" with lore "&6[その他]" and "&fただの羽。" to {LootList::Others::*}
+#特殊アイテム
+#    add coal named "&d魔法の石炭" with lore "&6[特殊]" and "&f焚き火に使用すると、周囲に回復エリアを発生させる。" to {LootList::Special::*}
+function pickUpLoot() :: item:
+    set {_chance} to random integer between 1 to 100
+    if {_chance} <= 35: #食料35%
+        set {_type} to 0 
+    else if {_chance} <= 65: #雑貨30%
+        set {_type} to 1
+    else if {_chance} <= 85: #調査系20%
+        set {_type} to 2 
+    else if {_chance} <= 89: #収集品4%
+        set {_type} to 3
+    else if {_chance} <= 92: #強化系3%
+        set {_type} to 4
+    else if {_chance} <= 100: #宝石8%
+        set {_type} to 5
+
+    if {_type} is 0:
+        return a random element out of {Lootlist::Food::*}
+    else if {_type} is 1:
+        return a random element out of {LootList::Others::*}
+    else if {_type} is 2:
+        return a random element out of {LootList::Search::*}
+    else if {_type} is 3:
+        set {_item} to a random element out of {Lootlist::Collection::*}
+        remove {_item} from {Lootlist::Collection::*}
+        return {_item}
+    else if {_type} is 4:
+        return a random element out of {LootList::Enhance::*}
+    else if {_type} is 5:
+        return a random element out of {LootList::Jewel::*}
+
+function CollectionList():
+    set {CollectionList::*} to shulker shell named "&b硬い殻" with lore "&6[収集品]"
+    add honeycomb named "&b蜂の恵み" with lore "&6[収集品]" to {CollectionList::*}
+    add nether star named "&b星の欠片" with lore "&6[収集品]" to {CollectionList::*}
+    add heart of the sea named "&b蒼い球" with lore "&6[収集品]" to {CollectionList::*}
+    add amethyst shard named "&b紫水晶" with lore "&6[収集品]" to {CollectionList::*}
+    add glowstone dust named "&b発光する鱗粉" with lore "&6[収集品]" to {CollectionList::*}
+    add phantom membrane named "&b白竜の鱗" with lore "&6[収集品]" to {CollectionList::*}
+    add prismarine crystals named "&b海の破片" with lore "&6[収集品]" to {CollectionList::*}
+    add magma cream named "&b燃える心" with lore "&6[収集品]" to {CollectionList::*}
+    add ghast tear named "&b女神の涙" with lore "&6[収集品]" to {CollectionList::*}

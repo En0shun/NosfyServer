@@ -1,0 +1,166 @@
+on rightclick on smithing table:
+    cancel event
+on rightclick on campfire:
+    cancel event
+    if name of player's tool is "&f生の牛肉":
+        if player has enough space for 1 cooked beef named "&f焼いた牛肉" with lore "&6[食料]":
+            play sound "BLOCK_FIRE_EXTINGUISH" in master volume category with volume 0.5 and pitch 0.5 for player
+            send "&f「焼いた牛肉」&aを手に入れた。" to player
+            set item amount of player's tool to item amount of player's tool - 1
+            add cooked beef named "&f焼いた牛肉" with lore "&6[食料]" to player
+        else:
+            send "&c持ち物がいっぱいです..." to player
+    else if name of player's tool is "&f生の豚肉":
+        if player has enough space for 1 cooked porkchop named "&f焼いた豚肉" with lore "&6[食料]":
+            play sound "BLOCK_FIRE_EXTINGUISH" in master volume category with volume 0.5 and pitch 0.5 for player
+            send "&f「焼いた豚肉」&aを手に入れた。" to player
+            set item amount of player's tool to item amount of player's tool - 1
+            add cooked porkchop named "&f焼いた豚肉" with lore "&6[食料]" to player
+        else:
+            send "&c持ち物がいっぱいです..." to player
+    else if name of player's tool is "&f生の羊肉":
+        if player has enough space for 1 cooked mutton named "&f焼いた羊肉" with lore "&6[食料]":
+            play sound "BLOCK_FIRE_EXTINGUISH" in master volume category with volume 0.5 and pitch 0.5 for player
+            send "&f「焼いた羊肉」&aを手に入れた。" to player
+            set item amount of player's tool to item amount of player's tool - 1
+            add cooked mutton named "&f焼いた羊肉" with lore "&6[食料]" to player
+        else:
+            send "&c持ち物がいっぱいです..." to player
+    else if name of player's tool is "&f生の鳥肉":
+        if player has enough space for 1 cooked chicken named "&f焼いた鳥肉" with lore "&6[食料]":
+            play sound "BLOCK_FIRE_EXTINGUISH" in master volume category with volume 0.5 and pitch 0.5 for player
+            send "&f「焼いた鳥肉」&aを手に入れた。" to player
+            set item amount of player's tool to item amount of player's tool - 1
+            add cooked chicken named "&f焼いた鳥肉" with lore "&6[食料]" to player
+        else:
+            send "&c持ち物がいっぱいです..." to player
+    else if name of player's tool is "&f生の鱈":
+        if player has enough space for 1 cooked cod named "&f焼いた鱈" with lore "&6[食料]":
+            play sound "BLOCK_FIRE_EXTINGUISH" in master volume category with volume 0.5 and pitch 0.5 for player
+            send "&f「焼いた鱈」&aを手に入れた。" to player
+            set item amount of player's tool to item amount of player's tool - 1
+            add cooked cod named "&f焼いた鱈" with lore "&6[食料]" to player
+        else:
+            send "&c持ち物がいっぱいです..." to player
+    else if name of player's tool is "&f生の鮭":
+        if player has enough space for 1 cooked salmon named "&f焼いた鮭" with lore "&6[食料]":
+            play sound "BLOCK_FIRE_EXTINGUISH" in master volume category with volume 0.5 and pitch 0.5 for player
+            send "&f「焼いた鮭」&aを手に入れた。" to player
+            set item amount of player's tool to item amount of player's tool - 1
+            add cooked salmon named "&f焼いた鮭" with lore "&6[食料]" to player
+        else:
+            send "&c持ち物がいっぱいです..." to player
+
+function hasEnoughItem(p: player, item: item, i: integer) :: boolean:
+    if {_item} is emerald:
+        set {_item} to emerald named "&a翡翠色の宝石" with lore "&6[宝石]" and "&f非常に価値のある宝石。" and "&fショップで様々なアイテムと交換できる。"
+    loop {_p}'s inventory:
+        if name of loop-value is name of {_item}:
+            if item amount of loop-value >= {_i}:
+                set item amount of loop-value to item amount of loop-value - {_i}
+                play sound "BLOCK_NOTE_BLOCK_HARP" in master volume category with volume 1 and pitch 2 for {_p}
+                return true
+    send "&c十分な量のアイテムを持っていません..." to {_p}
+    return false
+function hasEnoughSpace(p: player, item: item) :: boolean:
+    if {_item} is emerald:
+        set {_item} to emerald named "&a翡翠色の宝石" with lore "&6[宝石]" and "&f非常に価値のある宝石。" and "&fショップで様々なアイテムと交換できる。"
+    if {_p} can hold {_item}:
+        return true
+    return false
+
+on rightclick on blast furnace:
+    cancel event
+    CollectionList()
+    loop {CollectionList::*}:
+        if player's tool is loop-value:
+            play sound "BLOCK_NOTE_BLOCK_CHIME" in master volume category with volume 1 and pitch 2 for player
+            send "%name of player's tool% &fを売却しました。" to player
+            give player 4 emerald named "&a翡翠色の宝石" with lore "&6[宝石]" and "&f非常に価値のある宝石。" and "&fショップで様々なアイテムと交換できる。"
+            add player's tool to {CollectionShop::*}
+            delete player's tool
+            stop
+    play sound "BLOCK_NOTE_BLOCK_PLING" in master volume category with volume 0.5 and pitch 1 for player
+    send "&9&l収集品取引所 &fを開きました。" to player
+    set {_collection.shop} to chest inventory with 2 row named "&9&l収集品取引所"
+    set {_i} to 0
+    loop {CollectionShop::*}:
+        set {_loop-value} to loop-value
+        add {_loop-value} to {_instant.box::*}
+        set the 2nd line of {_loop-value}'s lore to "&6[値段]: 6"
+        set slot {_i} of {_collection.shop} to {_loop-value}
+        remove {_loop-value} from {CollectionShop::*}
+        add 1 to {_i}
+    loop (18 - {_i}) times:
+        set slot (18 - loop-number) of {_collection.shop} to black stained glass pane named "&0"
+    delete {CollectionShop::*}
+    loop {_instant.box::*}:
+        add loop-value to {CollectionShop::*}
+    open {_collection.shop} to player
+on rightclick on crafting table:
+    cancel event
+    play sound "BLOCK_NOTE_BLOCK_PLING" in master volume category with volume 0.5 and pitch 1 for player
+    if name of player's tool is "&9Tier[2]ショップの鍵":
+        broadcast "debug"
+    else:
+        send "&9&lTier[1] &fショップを開きました。" to player
+        set {_tier1} to chest inventory with 1 row named "&9&lTier[1]"
+        set slot 0 of {_tier1} to black stained glass pane named "&0"
+        set slot 1 of {_tier1} to wooden sword with all flags hidden named "&f木の剣" with lore "&6[装備]" and "&2攻撃力: +%weaponDmg("&f木の剣")%" and "&2耐久減少度: %weaponDrb("&f木の剣", 1)%～%weaponDrb("&f木の剣", 0)%" and "&6[値段]: 1"
+        set slot 2 of {_tier1} to stone sword with all flags hidden named "&f石の剣" with lore "&6[装備]" and "&2攻撃力: +%weaponDmg("&f石の剣")%" and "&2耐久減少度: %weaponDrb("&f石の剣", 1)%～%weaponDrb("&f石の剣", 0)%" and "&6[値段]: 3"
+        set slot 3 of {_tier1} to iron sword with all flags hidden named "&f鉄の剣" with lore "&6[装備]" and "&2攻撃力: +%weaponDmg("&f鉄の剣")%" and "&2耐久減少度: %weaponDrb("&f鉄の剣", 1)%～%weaponDrb("&f鉄の剣", 0)%" and "&6[値段]: 5"
+        set slot 4 of {_tier1} to book named "&a「名前」調査書" with lore "&6[調査]" and "&fプレイヤーに使用することで対象の「名前」を読み取る。" and "&6[値段]: 1"
+        set slot 5 of {_tier1} to book named "&a「殺害対象」調査書" with lore "&6[調査]" and "&fプレイヤーに使用することで対象の「殺害対象」を読み取る。" and "&6[値段]: 1"
+        set slot 6 of {_tier1} to book named "&a「収集品」調査書" with lore "&6[調査]" and "&fプレイヤーに使用することで対象の「収集品」を読み取る。" and "&6[値段]: 1"
+        set slot 7 of {_tier1} to cookie named "&cライフクッキー" with lore "&6[自己強化]" and "&f使用すると自身の最大体力が1♡増加する。" and "&6[値段]: 1"
+        set slot 8 of {_tier1} to black stained glass pane named "&0"
+        open {_tier1} to player
+on inventory click:
+    if event-inventory is not player's inventory:
+        if event-inventory's name is "&9&l収集品取引所":
+            cancel event
+            loop {CollectionList::*}:
+                if name of loop-value is name of event-slot:
+                    player has enough space for bedrock
+                    hasEnoughItem(player, emerald, 6) is true
+                    give player loop-value
+                    remove loop-value from {CollectionShop::*}
+                    send "%name of loop-value% &fを入手しました。"
+                    close player's inventory
+        else if event-inventory's name is "&9&lTier[1]":
+            cancel event
+            if index of event-slot is 1:
+                hasEnoughSpace(player, ItemList(1, 1)) is true
+                hasEnoughItem(player, emerald, 1) is true
+                give player ItemList(1, 1)
+                send "%name of ItemList(1, 1)% &fを手に入れた。" to player
+            else if index of event-slot is 2:
+                hasEnoughSpace(player, ItemList(1, 2)) is true
+                hasEnoughItem(player, emerald, 3) is true
+                give player ItemList(1, 2)
+                send "%name of ItemList(1, 2)% &fを手に入れた。" to player
+            else if index of event-slot is 3:
+                hasEnoughSpace(player, ItemList(1, 3)) is true
+                hasEnoughItem(player, emerald, 5) is true
+                give player ItemList(1, 3)
+                send "%name of ItemList(1, 3)% &fを手に入れた。" to player
+            else if index of event-slot is 4:
+                hasEnoughSpace(player, ItemList(1, 4)) is true
+                hasEnoughItem(player, emerald, 1) is true
+                give player ItemList(1, 4)
+                send "%name of ItemList(1, 4)% &fを手に入れた。" to player
+            else if index of event-slot is 5:
+                hasEnoughSpace(player, ItemList(1, 5)) is true
+                hasEnoughItem(player, emerald, 1) is true
+                give player ItemList(1, 5)
+                send "%name of ItemList(1, 5)% &fを手に入れた。" to player
+            else if index of event-slot is 6:
+                hasEnoughSpace(player, ItemList(1, 6)) is true
+                hasEnoughItem(player, emerald, 1) is true
+                give player ItemList(1, 6)
+                send "%name of ItemList(1, 6)% &fを手に入れた。" to player
+            else if index of event-slot is 7:
+                hasEnoughSpace(player, ItemList(1, 7)) is true
+                hasEnoughItem(player, emerald, 1) is true
+                give player ItemList(1, 7)
+                send "%name of ItemList(1, 7)% &fを手に入れた。" to player

@@ -1,0 +1,43 @@
+on load:
+    set gamerule doFireTick of all worlds to false
+    set gamerule commandBlockOutput of all worlds to false
+    set gamerule doMobSpawning of all worlds to false
+    set gamerule doWeatherCycle of all worlds to false
+    set gamerule naturalRegeneration of all worlds to false
+on craft:
+    cancel event
+on bed enter:
+    cancel event
+#注意※設置されたチェストは一度サーバーを閉じるともう一度チェストを開かない限り設置済みのチェスト数にカウントされません
+on mine:
+    if player does not have bedrock:
+        cancel event
+    else:
+        if event-block's name is "&6補給箱":
+            remove event-block's location from {ChestLocation::*}
+            if metadata value "supply.chest" of event-block is set:
+                send "&f設置されているチェストは &6%amount of {ChestLocation::*}%個 &fです。" to player
+            clear metadata value "supply.chest" of event-block
+on place:
+    if player does not have bedrock:
+        cancel event
+    else:
+        if event-block's name is "&6補給箱":
+            set metadata value "supply.chest" of event-block to true
+            add event-block's location to {ChestLocation::*}
+            send "&f設置されているチェストは &6%amount of {ChestLocation::*}%個 &fです。" to player
+on food bar change:
+    if metadata value "ingame" of player is not true:
+        cancel event
+on drop:
+    if player does not have bedrock:
+        cancel event
+    set pickup delay of last dropped item to 2 ticks
+on item despawn:
+    cancel event
+on weather change:
+    cancel event
+on swap hand items:
+    cancel event
+on rightclick on smithing table:
+    cancel event

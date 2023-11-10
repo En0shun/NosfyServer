@@ -1,0 +1,221 @@
+command /dummy <integer> [<number> <number> <number>]:
+    permission: skript.game
+    permission message: {@no_permission}
+    trigger:
+        if arg-2 is set:
+            spawn a villager at location(arg-2, arg-3, arg-4) with nbt from "{NoAI:1b}"
+        else:
+            set {_loc} to location at player's targeted block
+            add 0.5 to y-pos of {_loc}
+            spawn a villager at {_loc} with nbt from "{NoAI:1b}"
+        set last spawned entity's max health to arg-1
+        set last spawned entity's health to last spawned entity's max health
+        set metadata value "dummy" of last spawned entity to true
+command /dummykill:
+    permission: skript.game
+    permission message: {@no_permission}
+    trigger:
+        set {_count} to 0
+        loop all villagers:
+            if loop-entity has metadata value "dummy":
+                add 1 to {_count}
+                delete metadata value "dummy" of loop-entity
+                kill loop-entity
+        if command sender is player:
+            send "&6%{_count}%体 &fのdummyを消去しました" to player
+on right click with bedrock:
+    if player has permission "skript.game":
+        execute console command "/dummy 20 %x-pos of player's targeted block% %y-pos of player's targeted block + 0.5% %z-pos of player's targeted block%"
+on left click with bedrock:
+    if player has permission "skript.game":
+        execute console command "/dummykill"
+
+function init(p: player):
+    set {_p}'s attack speed attribute to 1 #default 4
+    set {_p}'s movement speed attribute to 0.1 #default 0.1
+    set {_p}'s knockback resistance attribute to 0 #default 0
+    set {_p}'s max health attribute to 20 #default 20
+    set {_p}'s health to 20 #default 20
+    set {_p}'s attack damage attribute to 1 #default 1
+    set metadata value "DefaultAttackSpeed" of {_p} to {_p}'s attack speed attribute
+    set metadata value "DefaultMovementSpeed" of {_p} to {_p}'s movement speed attribute
+function setMs(p: player):
+    set {_product} to 1
+    if metadata value "speed.carrot" of {_p} is set:
+        add 0.6 to {_product}
+    set {_p}'s movement speed attribute to (metadata value "DefaultMovementSpeed" of {_p})*{_product}
+
+on damage:
+    if damage cause is sweep attack:
+        cancel event
+    else if damage cause is fire:
+        cancel event
+    else if damage cause is starvation:
+        cancel event
+    if attacker is a player:
+        if attacker is not op:
+            if isAlive(attacker) is false:
+                stop
+    if victim is a player:
+        if isAlive(victim) is false:
+            stop
+#ダメージ計算
+    if damage cause is attack:
+        set {_dmg} to attacker's attack damage attribute
+        add weaponDmg(name of attacker's current hotbar slot) to {_dmg}
+#バフなどでのダメージ増減計算
+        if metadata value "power.root" of attacker is set:
+            add 1.5 to {_dmg}
+        if metadata value "armor.pie" of victim is set:
+            add -1 to {_dmg}
+#ダメージ最終決定
+    if {_dmg} is set:
+        set the damage to {_dmg}
+#攻撃速度計算
+    if attacker's tool is wooden sword, stone sword, iron sword, golden sword, diamond sword or netherite sword:
+        set {_supplementation} to 2.4
+        set {_as} to metadata value "DefaultAttackSpeed" of attacker
+    else:
+        set {_as} to 1
+    set attacker's attack speed attribute to {_as} + {_supplementation}
+#武器の耐久減算
+    repair tool of attacker by 1 #アドベンチャー時に耐久値減少が普通に起きるからそれの補正
+    add random integer between weaponDrb(name of attacker's current hotbar slot, 1) and weaponDrb(name of attacker's current hotbar slot, 0) to attacker's tool's durability
+#死亡検知
+    if victim's health - the damage <= 0:
+        if killingCondition(attacker, victim) is true:
+            cancel event
+            set victim's gamemode to spectator
+            set victim's health to 20
+            send title "&cあなたは殺害されました。" to victim for 3 seconds with fadein 0.5 second and fadeout 0.5 second
+            play sound "ENTITY_GENERIC_EXPLODE" in master volume category with volume 1 and pitch 1 for victim
+            add metadata value "name" of victim to {KilledPlayer::*}
+        else:
+            if attacker is not op:
+                cancel event
+                set attacker's gamemode to spectator
+                set attacker's health to 20
+                set victim's health to 1
+                send title "&c誤殺ペナルティを受けました。" to attacker for 3 seconds with fadein 0.5 second and fadeout 0.5 second
+                play sound "ENTITY_GENERIC_EXPLODE" in master volume category with volume 1 and pitch 1 for attacker
+                add metadata value "name" of attacker to {KilledPlayer::*}
+#dummy
+    if victim has metadata value "dummy":
+        send "&c%damage%♡" to attacker
+on inventory close:
+    loop player's inventory:
+        if player has shulker shell named "&b硬い殻" with lore "&6[収集品]":
+            if {LastHolder::shell} is not player:
+                set {LastHolder::shell} to player
+        if player has honeycomb named "&b蜂の恵み" with lore "&6[収集品]":
+            if {LastHolder::honey} is not player:
+                set {LastHolder::honey} to player
+        if player has nether star named "&b星の欠片" with lore "&6[収集品]":
+            if {LastHolder::star} is not player:
+                set {LastHolder::star} to player
+        if player has heart of the sea named "&b蒼い球" with lore "&6[収集品]":
+            if {LastHolder::sea} is not player:
+                set {LastHolder::sea} to player
+        if player has amethyst shard named "&b紫水晶" with lore "&6[収集品]":
+            if {LastHolder::amethyst} is not player:
+                set {LastHolder::amethyst} to player
+        if player has glowstone dust named "&b発光する鱗粉" with lore "&6[収集品]":
+            if {LastHolder::glowstone} is not player:
+                set {LastHolder::glowstone} to player
+        if player has phantom membrane named "&b白竜の鱗" with lore "&6[収集品]":
+            if {LastHolder::membrane} is not player:
+                set {LastHolder::membrane} to player
+        if player has prismarine crystals named "&b海の破片" with lore "&6[収集品]":
+            if {LastHolder::prismarine} is not player:
+                set {LastHolder::prismarine} to player
+        if player has magma cream named "&b燃える心" with lore "&6[収集品]":
+            if {LastHolder::magma} is not player:
+                set {LastHolder::magma} to player
+        if player has ghast tear named "&b女神の涙" with lore "&6[収集品]":
+            if {LastHolder::tear} is not player:
+                set {LastHolder::tear} to player
+#on inventory slot change:
+#    broadcast "%event-slot%, %event-item%"
+function killingCondition(a: player, v: entity) :: boolean:
+    isAlive({_a}) is true
+    isAlive({_v}) is true
+    if metadata value "target" of {_a} is metadata value "name" of {_v}:
+        return true
+    if metadata value "target" of {_v} is metadata value "name" of {_a}:
+        return true
+    if metadata value "collection" of {_a} is metadata value "collection" of {_v}:
+        return true
+    set {_i} to 1
+    loop 10 times:
+        set {_item} to ItemList(0, {_i})
+        if metadata value "collection" of {_a} is name of {_item}:
+            if {_i} = 1:
+                return true if {LastHolder::shell} is {_v}
+            else if {_i} = 2:
+                return true if {LastHolder::honey} is {_v}
+            else if {_i} = 3:
+                return true if {LastHolder::star} is {_v}
+            else if {_i} = 4:
+                return true if {LastHolder::sea} is {_v}
+            else if {_i} = 5:
+                return true if {LastHolder::amethyst} is {_v}
+            else if {_i} = 6:
+                return true if {LastHolder::glowstone} is {_v}
+            else if {_i} = 7:
+                return true if {LastHolder::membrane} is {_v}
+            else if {_i} = 8:
+                return true if {LastHolder::prismarine} is {_v}
+            else if {_i} = 9:
+                return true if {LastHolder::magma} is {_v}
+            else if {_i} = 10:
+                return true if {LastHolder::tear} is {_v}
+            return false
+        add 1 to {_i}
+    set {_i} to 1
+    loop 10 times:
+        set {_item} to ItemList(0, {_i})
+        if metadata value "collection" of {_v} is name of {_item}:
+            if {_i} = 1:
+                return true if {LastHolder::shell} is {_a}
+            else if {_i} = 2:
+                return true if {LastHolder::honey} is {_a}
+            else if {_i} = 3:
+                return true if {LastHolder::star} is {_a}
+            else if {_i} = 4:
+                return true if {LastHolder::sea} is {_a}
+            else if {_i} = 5:
+                return true if {LastHolder::amethyst} is {_a}
+            else if {_i} = 6:
+                return true if {LastHolder::glowstone} is {_a}
+            else if {_i} = 7:
+                return true if {LastHolder::membrane} is {_a}
+            else if {_i} = 8:
+                return true if {LastHolder::prismarine} is {_a}
+            else if {_i} = 9:
+                return true if {LastHolder::magma} is {_a}
+            else if {_i} = 10:
+                return true if {LastHolder::tear} is {_a}
+            return false
+        add 1 to {_i}
+
+on player's held item change:
+    if player's tool is wooden sword, stone sword, iron sword, golden sword, diamond sword or netherite sword:
+        set {_supplementation} to 2.4
+        set {_as} to metadata value "DefaultAttackSpeed" of player
+    else:
+        set {_as} to 1
+    set player's attack speed attribute to {_as} + {_supplementation}
+function weaponDmg(t: text) :: number:
+    return 1 if {_t} is "&f木の剣"
+    return 1.5 if {_t} is "&f石の剣"
+    return 2 if {_t} is "&f鉄の剣"
+    return 0
+function weaponDrb(t: text, type: integer) :: number:
+    if {_type} is 0:
+        return -5 if {_t} is "&f木の剣"
+        return -6 if {_t} is "&f石の剣"
+        return -9 if {_t} is "&f鉄の剣"
+    else if {_type} is 1:
+        return -6 if {_t} is "&f木の剣"
+        return -8 if {_t} is "&f石の剣"
+        return -12 if {_t} is "&f鉄の剣"

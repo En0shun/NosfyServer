@@ -1,0 +1,398 @@
+options:
+    no_permission: &4You can't execute this command!
+    game_title: &c&lProject Unknown
+variables:
+    {Timer} = 1200
+
+on chat:
+    if inGame() is true:
+        cancel event
+        loop all players in radius 5 around the player:
+            send "&f[Unknown]: &7%message%" to loop-player
+    else:
+        set chat format to "&f[%player%]: &7%message%"
+on join:
+    init(player)
+    set the player's tab list name to player's name
+    set join message to "&b%player% has join the game"
+    set all players' tab list header to "{@game_title}"
+    send "Welcome to %the player's tab list header% &r&fserver!" to player
+    toggle scoreboards of player on
+    set metadata value "ready" of player to false
+    set metadata value "name" of player to "[none]"
+    set metadata value "ability" of player to "[none]"
+    set metadata value "target" of player to "[none]"
+    set metadata value "collection" of player to "[none]"
+    teleport player to {Spawnpoint}
+    loop all players:
+        if metadata value "ingame" of loop-player is true:
+            set player's gamemode to spectator
+on quit:
+    set quit message to "&b%player% has left the game"
+    if metadata value "ingame" of player is true:
+        add metadata value "name" of player to {KilledPlayer::*}
+    clear metadata value "ingame" of player
+#on server stop:
+    #delete {ChestLocation::*}
+    #lear {server-icons::*}
+    #load server icon from file "icons/%loop-number%.png"
+    #add the last loaded server icon to {server-icons::*}
+on server list ping:
+    set the motd to "&c&lProject Unknown"
+every 10 ticks:
+    loop all players:
+        set title of loop-player's scoreboard to "{@game_title}"
+        set line 11 of loop-player's scoreboard to "&7Ping： %loop-player's ping%&f"
+        set line 10 of loop-player's scoreboard to "&a名前： &f%metadata value "name" of loop-player%"
+        set line 9 of loop-player's scoreboard to "&a能力： &f%metadata value "ability" of loop-player%"
+        set line 8 of loop-player's scoreboard to "&a殺害対象： &f%metadata value "target" of loop-player%"
+        set line 7 of loop-player's scoreboard to "&a収集品： &f%metadata value "collection" of loop-player%"
+        if metadata value "ingame" of loop-player is true:
+            set line 6 of loop-player's scoreboard to "&f残り時間： %floor(({Timer}-{gametimer})/60)%分%mod({Timer}-{gametimer},60)%秒&f"
+        else:
+            delete line 6 of loop-player's scoreboard
+        if metadata value "regen.fruit" of loop-player is set:
+            set line 5 of loop-player's scoreboard to "&d「再生の果実」： &7%metadata value "regen.fruit" of loop-player%秒"
+        else:
+            delete line 5 of loop-player's scoreboard
+        if metadata value "golden.apple" of loop-player is set:
+            set line 4 of loop-player's scoreboard to "&6「黄金の林檎」： &7%metadata value "golden.apple" of loop-player%秒"
+        else:
+            delete line 4 of loop-player's scoreboard
+        if metadata value "speed.carrot" of loop-player is set:
+            set line 3 of loop-player's scoreboard to "&b「俊足ニンジン」： &7%metadata value "speed.carrot" of loop-player%秒"
+        else:
+            delete line 3 of loop-player's scoreboard
+        if metadata value "power.root" of loop-player is set:
+            set line 2 of loop-player's scoreboard to "&4「筋力の根」： &7%metadata value "power.root" of loop-player%秒"
+        else:
+            delete line 2 of loop-player's scoreboard
+        if metadata value "armor.pie" of loop-player is set:
+            set line 1 of loop-player's scoreboard to "&3「アーマーパイ」： &7%metadata value "armor.pie" of loop-player%秒"
+        else:
+            delete line 1 of loop-player's scoreboard
+
+command /debug:
+    permission: skript.game
+    permission message: {@no_permission}
+    trigger:
+        #hide player in tablist of all player
+        #set the player's tab list name to "&0Unknown"
+        #hide the player from all players
+        #hide player in tab list of all players
+        #broadcast "%{ChestLocation::*}%"
+        #delete {CollectionShop::*}
+        #broadcast "%player's movement speed attribute%"
+        #init(player)
+        #set metadata value "target" of player to "test"
+        #add "test" to {KilledPlayer::*}
+        setLoot()
+        #set the player's food level to 5
+        #setStatus(player, 1)
+        #delete {LastHolder::*}
+        #add -4 to player's health
+        #loop {LootList::Enhance::*}:
+        #    give loop-value to player
+        #give pickUpLoot() to player
+        #delete all dropped items
+        #give a book named "test" to player
+command /fixall:
+    permission: skript.game
+    permission message: {@no_permission}
+    trigger:
+        delete {LastHolder::*}
+        delete {PlayerMemo::*}
+        delete {KilledPlayer::*}
+        delete {gametimer}
+        delete {CollectionShop::*}
+command /setgamespawn:
+    permission: skript.game
+    permission message: {@no_permission}
+    trigger:
+        set {Spawnpoint} to player's location
+        broadcast "&fゲームのスポーンポイントを設定しました。"
+command /setresultspawn:
+    permission: skript.game
+    permission message: {@no_permission}
+    trigger:
+        set {ResultSpawnpoint} to player's location
+        broadcast "&f結果発表時のスポーンポイントを設定しました。"
+command /setlobby:
+    permission: skript.game
+    permission message: {@no_permission}
+    trigger:
+        set {Lobby} to player's location
+        broadcast "&fロビーのスポーンポイントを設定しました。"
+
+on right click with ender chest:
+    if player is op:
+        set {_settings} to hopper inventory named "&fop"
+        set slot 0 of {_settings} to iron sword named "&aStart game"
+        open {_settings} to player
+on inventory click:
+    if event-inventory's name is "&fop":
+        if event-item is iron sword named "&aStart game":
+            cancel event
+            execute console command "/start"
+            close inventory to player
+
+command /settimer <integer>:
+    permission: skript.game
+    permission message: {@no_permission}
+    trigger:
+        if arg-1 < 0:
+            set {gametimer} to 0
+        else if arg-1 > {Timer}:
+            set {GameStopper} to true
+        else:
+            set {gametimer} to arg-1
+command /start:
+    permission: skript.game
+    permission message: {@no_permission}
+    trigger:
+        loop all players:
+            if metadata value "ingame" of loop-player is true:
+                broadcast "&cゲーム中に新たなゲームを開始することはできません。"
+                stop
+            if metadata value "ready" of loop-player is false:
+                broadcast "&cプレイヤーの準備が完了していません。"
+                stop
+        send title "&cゲームが始まります。" to all players for 3 seconds with fadein 1 second and fadeout 1 second
+        play sound "BLOCK_BEACON_ACTIVATE" in master volume category with volume 2 and pitch 2 for all players
+        set {gametimer} to 0
+        loop all players:
+            if metadata value "ready" of loop-player is true:
+                set metadata value "ingame" of loop-player to true
+                set metadata value "ready" of loop-player to false
+        wait 3 seconds
+        countDownInt(5)
+        wait 5 seconds
+        broadcast "&a&l全員の転送を完了しました。"
+        send title "&cゲーム開始" to all players for 1 seconds with fadein 0.25 second and fadeout 0.25 second
+        play sound "BLOCK_END_PORTAL_SPAWN" in master volume category with volume 0.5 and pitch 2 for all players
+        set {_team} to team named "player"
+        loop all players:
+            if metadata value "ingame" of loop-player is true:
+                teleport loop-player to {Spawnpoint}
+                clear loop-player's inventory
+                heal(loop-player)
+                add loop-player to team named "player"
+                set the loop-player's tab list name to "&0[Unknown]"
+        set team option name tag visibility of team named "player" to never
+        set team option collision rule of team named "player" to never
+        set allow friendly fire team state of team named "player" to true
+        set can see friendly invisibles team state of team named "player" to false
+        delete {PlayerMemo::*}
+        delete {CollectionShop::*}
+        setLoot()
+        gameTicks()
+command /getready:
+    permission: skript.game
+    permission message: {@no_permission}
+    trigger:
+        loop all players:
+            if metadata value "ingame" of loop-player is true:
+                broadcast "&cゲーム中に新たな募集を行うことはできません。"
+                stop
+        loop 30 times:
+            add loop-number to {_name::*}
+        loop 3 times:
+            add loop-number to {_ability::*} 
+        loop 10 times:
+            add loop-number to {_collection::*} 
+        loop all players:
+            loop blocks in radius 4 of loop-player:
+                loop-block is smithing table
+                if metadata value "ready" of loop-player is false:
+                    set metadata value "ready" of loop-player to true
+                    set {_name} to a random element out of {_name::*}
+                    set {_ability} to a random element out of {_ability::*}
+                    set {_collection} to a random element out of {_collection::*}
+                    add loop-player to {_player::*}
+                    remove {_name} from {_name::*}
+                    remove {_ability} from {_ability::*}
+                    remove {_collection} from {_collection::*}
+                    set metadata value "name" of loop-player to createName({_name})
+                    set metadata value "ability" of loop-player to createAbility({_ability})
+                    set metadata value "collection" of loop-player to createCollection({_collection})
+                    setStatus(loop-player, {_ability})
+                    add loop-player to {_player.list::*}
+                    add 1 to {_count}
+        set {_player::*} to shuffled {_player::*}
+        loop amount of {_player::*} times:
+            add metadata value "name" of 1st element of {_player::*} to {_target::*}
+        add 1st element of {_target::*} to {_target::*}
+        loop amount of {_player::*} times:
+            set metadata value "target" of 1st element of {_player::*} to 2nd element of {_target::*}
+            remove 1st element of {_player::*} from {_player::*}
+            remove 2nd element of {_target::*} from {_target::*}
+        broadcast "&b%{_player.list::*}% &f&lが参加しました。"
+        broadcast "&f&l参加者の合計は &6%{_count}% &f&lです。"
+command /reset:
+    permission: skript.game
+    permission message: {@no_permission}
+    trigger:
+        if inGame() is true:
+            broadcast "&cゲーム中に新たな募集を行うことはできません。"
+            stop
+        loop all players:
+            set metadata value "ready" of loop-player to false
+            set metadata value "name" of loop-player to "[none]"
+            set metadata value "ability" of loop-player to "[none]"
+            set metadata value "target" of loop-player to "[none]"
+            set metadata value "collection" of loop-player to "[none]"
+        broadcast "&f&l参加者をリセットしました。"
+function heal(p: player):
+    set {_p}'s health to {_p}'s max health
+    set {_p}'s food level to 10
+
+function isAlive(p: player) :: boolean:
+    if metadata value "ingame" of {_p} is true:
+        if {_p}'s gamemode is adventure:
+            return true
+    return false
+function inGame() :: boolean:
+    loop all players:
+        if metadata value "ingame" of loop-player is true:
+            return true
+    return false
+function gameTicks():
+    set {gametimer} to 0
+    while {gametimer} < {Timer}:
+        if {GameStopper} is true:
+            clear {GameStopper}
+            exit 2 sections
+        if {gametimer} = 180:
+            inGameEvents(1)
+        add 1 to {gametimer}
+        wait a second
+    inGameEvents(2)
+    result()
+
+function countDownInt(t: integer):
+    while {_t} > 0:
+        broadcast "&6%{_t}%"
+        play sound "BLOCK_NOTE_BLOCK_BELL" in master volume category with volume 0.5 and pitch 1 for all players
+        add -1 to {_t}
+        wait a second
+function inGameEvents(i: integer):
+    if {_i} = 1:
+        enable PvP in all worlds
+        broadcast "&a&lPvPが可能になりました。"
+        send title "&c戦闘開始" to all players for 1 seconds with fadein 0.25 second and fadeout 0.25 second
+        play sound "ENTITY_WITHER_SPAWN" in master volume category with volume 0.5 and pitch 2 for all players
+    else if {_i} = 2:
+        disable PvP in all worlds
+        broadcast "&c&lPvPが禁止されました。"
+        send title "&cゲーム終了" to all players for 1 seconds with fadein 0.25 second and fadeout 0.25 second
+        play sound "ENTITY_WITHER_SPAWN" in master volume category with volume 0.5 and pitch 2 for all players
+    else if {_i} = 3:
+        broadcast "&1&lまだ出現していない収集品アイテムが収集品取引所に出現しました。"
+        play sound "ENTITY_CHICKEN_EGG" in master volume category with volume 0.5 and pitch 1 for all players
+function result():
+    loop all players:
+        if metadata value "ingame" of loop-player is true:
+            teleport loop-player to {ResultSpawnpoint}
+            set loop-player's gamemode to adventure
+    wait 5 seconds
+    broadcast "&a&l結果発表"
+    play sound "BLOCK_CHEST_OPEN" in master volume category with volume 1 and pitch 1.3 for all players
+    wait 4 seconds
+    play sound "BLOCK_END_GATEWAY_SPAWN" in master volume category with volume 1 and pitch 1.3 for all players
+    broadcast "&6&l勝者："
+    loop all players:
+        if checkMissions(loop-player) is true:
+            add loop-player to {_winner::*}
+            send title "&a勝利" to loop-player for 5 seconds with fadein 0.5 second and fadeout 0.5 second
+            broadcast "&8・&a%loop-player%"
+        else:
+            send title "&c敗北" to loop-player for 5 seconds with fadein 0.5 second and fadeout 0.5 second
+    if {_winner::*} is not set:
+        broadcast "&c勝者無し"
+    else:
+        loop all players:
+            if {_winner::*} does not contain loop-player:
+                set loop-player's gamemode to spectator
+    wait 7 seconds
+    play sound "BLOCK_NOTE_BLOCK_BELL" in master volume category with volume 1 and pitch 2 for all players
+    broadcast "&a&l最もキルを獲得した人："
+    broadcast "&a&l最もショップでお金を使った人："
+    wait 13 seconds
+    loop all players:
+        if metadata value "ingame" of loop-player is true:
+            teleport loop-player to {Lobby}
+            set loop-player's gamemode to adventure
+            set metadata value "name" of loop-player to "[none]"
+            set metadata value "ability" of loop-player to "[none]"
+            set metadata value "target" of loop-player to "[none]"
+            set metadata value "collection" of loop-player to "[none]"
+            clear metadata value "ingame" of loop-player
+            clear loop-player's inventory
+            init(loop-player)
+            heal(loop-player)
+    loop {ChestLocation::*}:
+        set {_block} to block at loop-value
+        delete metadata value "chest.last.opened.time" of {_block}
+        clear {_block}'s inventory
+    remove all players from team named "player"
+    delete team named "player"
+    delete {LastHolder::*}
+    delete {PlayerMemo::*}
+    delete {KilledPlayer::*}
+    delete {gametimer}
+function checkMissions(p: player) :: boolean:
+    if metadata value "ingame" of {_p} is true:
+        if {KilledPlayer::*} does not contain metadata value "name" of {_p}:
+            if {KilledPlayer::*} contains metadata value "target" of {_p}:
+                loop {_p}'s inventory:
+                    if loop-value's name is metadata value "collection" of {_p}:
+                        return true
+                return false
+        
+
+function createName(i: integer) :: text:
+    return "アナスタシア" if {_i} = 1
+    return "ペトラ" if {_i} = 2
+    return "オリヴィア" if {_i} = 3
+    return "アネット" if {_i} = 4
+    return "アレクサンドラ" if {_i} = 5
+    return "モニカ" if {_i} = 6
+    return "エレン" if {_i} = 7
+    return "エリザベート" if {_i} = 8
+    return "ウルゼル" if {_i} = 9
+    return "リーゼロッテ" if {_i} = 10
+    return "グスタフ" if {_i} = 11
+    return "ヘルムート" if {_i} = 12
+    return "ウーヴェ" if {_i} = 13
+    return "エミール" if {_i} = 14
+    return "アンドレア" if {_i} = 15
+    return "ベアトリーチェ" if {_i} = 16
+    return "クラウディア" if {_i} = 17
+    return "メアリー" if {_i} = 18
+    return "セーラ" if {_i} = 19
+    return "ドロシー" if {_i} = 20
+    return "リリー" if {_i} = 21
+    return "カルラ" if {_i} = 22
+    return "ロドニー" if {_i} = 23
+    return "カトリーヌ" if {_i} = 24
+    return "ミシェル" if {_i} = 25
+    return "ブラッド" if {_i} = 26
+    return "バーバラ" if {_i} = 27
+    return "アーデルハイト" if {_i} = 28
+    return "アニエス" if {_i} = 29
+    return "ゼナイド" if {_i} = 30
+function createAbility(i: integer) :: text:
+    return "疾風" if {_i} = 1
+    return "断罪者" if {_i} = 2
+    return "暴食" if {_i} = 3
+function createCollection(i: integer) :: text:
+    return "&b硬い殻" if {_i} = 1
+    return "&b蜂の恵み" if {_i} = 2
+    return "&b星の欠片" if {_i} = 3
+    return "&b蒼い球" if {_i} = 4
+    return "&b紫水晶" if {_i} = 5
+    return "&b発光する鱗粉" if {_i} = 6
+    return "&b白竜の鱗" if {_i} = 7
+    return "&b海の破片" if {_i} = 8
+    return "&b燃える心" if {_i} = 9
+    return "&b女神の涙" if {_i} = 10
