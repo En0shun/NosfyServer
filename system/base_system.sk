@@ -220,8 +220,8 @@ command /getready:
                     setStatus(loop-player, {_ability})
                     add loop-player to {_player.list::*}
                     add 1 to {_count}
-        broadcast "%1st element of {_player::*}%, %add metadata value "name" of 1st element of {_player::*}%"        
-        broadcast "%2st element of {_player::*}%, %add metadata value "name" of 2st element of {_player::*}%"     
+        broadcast "%1st element of {_player::*}%, %metadata value "name" of 1st element of {_player::*}%"        
+        broadcast "%2st element of {_player::*}%, %metadata value "name" of 2st element of {_player::*}%"     
         set {_player::*} to shuffled {_player::*}
         loop amount of {_player::*} times:
             add metadata value "name" of loop-number st element of {_player::*} to {_target::*} 
