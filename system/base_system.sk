@@ -219,15 +219,19 @@ command /getready:
                     set metadata value "collection" of loop-player to createCollection({_collection})
                     setStatus(loop-player, {_ability})
                     add loop-player to {_player.list::*}
-                    add 1 to {_count}
-        broadcast "%1st element of {_player::*}%, %metadata value "name" of 1st element of {_player::*}%"        
-        broadcast "%2st element of {_player::*}%, %metadata value "name" of 2st element of {_player::*}%"     
+                    add 1 to {_count}  
         set {_player::*} to shuffled {_player::*}
         loop amount of {_player::*} times:
-            add metadata value "name" of loop-number st element of {_player::*} to {_target::*} 
+            add metadata value "name" of loop-number st element of {_player::*} to {_target::*}
+        broadcast "%1st element of {_player::*}%, %1st element of {_target::*}%"        
+        broadcast "%2st element of {_player::*}%, %2st element of {_target::*}%"
+        broadcast "%3st element of {_player::*}%, %3st element of {_target::*}%"   
         set {_lastname} to 1st element of {_target::*}
         remove 1st element of {_target::*} from {_target::*}
         add {_lastname} to {_target::*}
+        broadcast "%1st element of {_player::*}%, %1st element of {_target::*}%"        
+        broadcast "%2st element of {_player::*}%, %2st element of {_target::*}%"
+        broadcast "%3st element of {_player::*}%, %3st element of {_target::*}%"   
         loop amount of {_player::*} times:
             set metadata value "target" of 1st element of {_player::*} to 1st element of {_target::*}
             remove 1st element of {_player::*} from {_player::*}
